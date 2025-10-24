@@ -2,174 +2,10 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AI Video Factory</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        .container {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            max-width: 600px;
-            width: 100%;
-            padding: 40px;
-        }
-
-        h1 {
-            color: #333;
-            margin-bottom: 10px;
-            font-size: 32px;
-        }
-
-        .subtitle {
-            color: #666;
-            margin-bottom: 30px;
-            font-size: 14px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            color: #333;
-            margin-bottom: 8px;
-            font-weight: 500;
-        }
-
-        textarea {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 14px;
-            font-family: inherit;
-            resize: vertical;
-            transition: border-color 0.3s;
-        }
-
-        textarea:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        .amount-input {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        input[type="number"] {
-            flex: 1;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 14px;
-            transition: border-color 0.3s;
-        }
-
-        input[type="number"]:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        .eth-label {
-            color: #666;
-            font-size: 14px;
-        }
-
-        .info-box {
-            background: #f5f5f5;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 20px;
-            font-size: 13px;
-            color: #666;
-        }
-
-        .info-box strong {
-            color: #333;
-        }
-
-        button {
-            width: 100%;
-            padding: 15px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        button:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
-        }
-
-        button:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        .status {
-            margin-top: 20px;
-            padding: 15px;
-            border-radius: 8px;
-            font-size: 14px;
-            display: none;
-        }
-
-        .status.success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-            display: block;
-        }
-
-        .status.error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-            display: block;
-        }
-
-        .status.info {
-            background: #d1ecf1;
-            color: #0c5460;
-            border: 1px solid #bee5eb;
-            display: block;
-        }
-
-        .link {
-            color: #667eea;
-            text-decoration: none;
-            font-weight: 500;
-        }
-
-        .link:hover {
-            text-decoration: underline;
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css" />
 </head>
 
 <body>
@@ -178,7 +14,7 @@
         <p class="subtitle">Generate videos with AI agents on Arbitrum</p>
 
         <div class="info-box">
-            <strong>Minimum payment:</strong> 0.0001 ETH<br>
+            <strong>Minimum payment:</strong> 0.0001 ETH<br />
             <strong>Payment split:</strong> Script (30%) → Sound (30%) → Video (40%)
         </div>
 
@@ -192,7 +28,7 @@
             <div class="form-group">
                 <label for="amount">Payment Amount (ETH)</label>
                 <div class="amount-input">
-                    <input type="number" id="amount" step="0.0000001" min="0.0000001" value="0.0000001" required>
+                    <input type="number" id="amount" step="0.0000001" min="0.0000001" value="0.0000001" required />
                     <span class="eth-label">ETH</span>
                 </div>
             </div>
@@ -203,124 +39,10 @@
         <div id="status" class="status"></div>
     </div>
 
-    <script>
-        // Contract address - deployed on Arbitrum Sepolia
-        const CONTRACT_ADDRESS = '0x6720c5604b76801F1475333DAf7Bd7E6D7D16c33';
-
-        // Minimal ABI
-        const CONTRACT_ABI = [
-            "function requestVideo(string memory _prompt) public payable",
-            "event VideoRequested(uint256 indexed requestId, address indexed user, string prompt)"
-        ];
-
-        let provider, signer, contract;
-
-        async function initWeb3() {
-            if (typeof window.ethereum === 'undefined') {
-                showStatus('Please install MetaMask to use this app', 'error');
-                return false;
-            }
-
-            try {
-                provider = new ethers.BrowserProvider(window.ethereum);
-                signer = await provider.getSigner();
-                contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
-                return true;
-            } catch (error) {
-                showStatus('Error connecting to wallet: ' + error.message, 'error');
-                return false;
-            }
-        }
-
-        async function connectWallet() {
-            if (!provider) {
-                await initWeb3();
-            }
-
-            try {
-                await window.ethereum.request({ method: 'eth_requestAccounts' });
-                const accounts = await provider.listAccounts();
-                showStatus(`Connected: ${accounts[0].address}`, 'success');
-                return true;
-            } catch (error) {
-                showStatus('Failed to connect wallet', 'error');
-                return false;
-            }
-        }
-
-        function showStatus(message, type) {
-            const statusEl = document.getElementById('status');
-            statusEl.textContent = message;
-            statusEl.className = `status ${type}`;
-        }
-
-        document.getElementById('requestForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            const prompt = document.getElementById('prompt').value;
-            const amount = document.getElementById('amount').value;
-
-            if (!CONTRACT_ADDRESS || CONTRACT_ADDRESS === '0x0000000000000000000000000000000000000000') {
-                showStatus('⚠️ Please set CONTRACT_ADDRESS in index.html', 'error');
-                return;
-            }
-
-            const connected = await connectWallet();
-            if (!connected) return;
-
-            const submitBtn = document.getElementById('submitBtn');
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Submitting...';
-
-            try {
-                const amountWei = ethers.parseEther(amount);
-
-                showStatus('Waiting for transaction confirmation...', 'info');
-
-                const tx = await contract.requestVideo(prompt, { value: amountWei });
-
-                showStatus(`Transaction sent: ${tx.hash}`, 'info');
-
-                const receipt = await tx.wait();
-
-                // Find the VideoRequested event
-                const event = receipt.logs.find(log => {
-                    try {
-                        const parsed = contract.interface.parseLog(log);
-                        return parsed.name === 'VideoRequested';
-                    } catch {
-                        return false;
-                    }
-                });
-
-                if (event) {
-                    const parsed = contract.interface.parseLog(event);
-                    const requestId = parsed.args.requestId.toString();
-
-                    showStatus(`✅ Video request submitted! Request ID: ${requestId}`, 'success');
-
-                    // Reset form
-                    document.getElementById('prompt').value = '';
-                } else {
-                    showStatus('Request submitted but could not find event', 'info');
-                }
-            } catch (error) {
-                console.error(error);
-                showStatus('Error: ' + error.message, 'error');
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Generate Video';
-            }
-        });
-
-        // Auto-connect on page load
-        window.addEventListener('load', async () => {
-            await initWeb3();
-            await connectWallet();
-        });
-    </script>
-
-    <script src="https://cdn.ethers.io/lib/ethers-6.15.0.umd.min.js"></script>
+    <!-- Load ethers.js library FIRST - local copy -->
+    <script src="ethers.min.js"></script>
+    <!-- Then load app logic with defer to ensure DOM is ready -->
+    <script src="app.js" defer></script>
 </body>
 
 </html>
