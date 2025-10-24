@@ -144,6 +144,16 @@ private-keys/
 artifacts/
 cache/
 
+# App storage and large artifacts
+storage/videos/
+storage/temp/
+storage/logs/
+storage/**/*.mp4
+storage/**/*.wav
+storage/**/*.mp3
+storage/**/*.mov
+storage/**/*.zip
+
 # Database
 *.sqlite
 *.sqlite3

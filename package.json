@@ -1,0 +1,19 @@
+{
+	"name": "ai-to-ai-payments",
+	"version": "1.0.0",
+	"description": "AI-to-AI payments system using blockchain",
+	"main": "index.js",
+	"scripts": {
+		"compile": "hardhat compile",
+		"deploy": "hardhat run scripts/deploy.js --network arbitrum",
+		"deploy:local": "hardhat run scripts/deploy.js --network hardhat",
+		"test": "hardhat test"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"devDependencies": {
+		"@nomicfoundation/hardhat-toolbox": "^5.0.0",
+		"hardhat": "^2.22.0"
+	}
+}
