@@ -1,0 +1,19 @@
+{
+	"name": "orchestrator",
+	"version": "1.0.0",
+	"description": "Backend orchestrator for AI-to-AI payments",
+	"main": "src/index.js",
+	"scripts": {
+		"start": "node src/index.js",
+		"dev": "nodemon src/index.js"
+	},
+	"dependencies": {
+		"dotenv": "^17.2.3",
+		"ethers": "^6.15.0",
+		"express": "^5.1.0",
+		"axios": "^1.7.9"
+	},
+	"devDependencies": {
+		"nodemon": "^3.1.9"
+	}
+}

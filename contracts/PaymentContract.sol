@@ -1,123 +1,169 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
+import "@openzeppelin/contracts/access/Ownable.sol";
+
 /**
- * @title PaymentContract
- * @dev Smart contract for handling AI-to-AI payments
- * This contract allows verified payments between AI agents
+ * @title MediaFactory
+ * @dev Handles user requests and orchestrator payments to AI agent wallets
  */
-contract PaymentContract {
-    // Events
-    event PaymentReceived(
-        address indexed from,
-        address indexed to,
-        address indexed token,
-        uint256 amount,
-        string txHash
+contract MediaFactory is Ownable {
+    // 1. DATA STORAGE
+
+    struct VideoRequest {
+        address user;
+        string prompt;
+        bool isComplete;
+        uint256 amountPaid;
+    }
+
+    uint256 public nextRequestId;
+    mapping(uint256 => VideoRequest) public requests;
+
+    // AP2/x402/MCP FLOW DATA
+    struct FlowData {
+        // Generic metadata URI (off-chain JSON with details)
+        string metadataURI;
+        // AP2 fields
+        string ap2Nonce;
+        string receiptURI; // e.g., URL to signed receipt or job ticket
+        string callbackURI; // e.g., backend webhook for status updates
+        // x402 fields
+        string x402ChallengeURI; // e.g., URL describing 402 challenge/invoice
+        // MCP context
+        string mcpContextURI; // e.g., URI to context payload/tools manifest
+    }
+
+    mapping(uint256 => FlowData) public requestFlows;
+
+    // 2. AGENT WALLETS
+    address public scriptAgentWallet;
+    address public soundAgentWallet;
+    address public videoAgentWallet;
+
+    // 3. EVENTS
+    event VideoRequested(
+        uint256 indexed requestId,
+        address indexed user,
+        string prompt
     );
-    
-    event InvoiceCreated(
-        uint256 indexed invoiceId,
-        address indexed recipient,
-        address indexed asset,
+
+    event AgentPaid(
+        uint256 indexed requestId,
+        address indexed agentWallet,
         uint256 amount
     );
-    
-    // Structs
-    struct Invoice {
-        address recipient;
-        address asset;
-        uint256 amount;
-        bool paid;
-        uint256 timestamp;
+
+    // AP2/x402/MCP events
+    event AP2FlowDefined(
+        uint256 indexed requestId,
+        string ap2Nonce,
+        string receiptURI,
+        string callbackURI,
+        string metadataURI
+    );
+
+    event X402ChallengeDefined(
+        uint256 indexed requestId,
+        string challengeURI
+    );
+
+    event MCPContextSet(
+        uint256 indexed requestId,
+        string contextURI
+    );
+
+    // 4. CONSTRUCTOR (Initial Setup)
+    constructor(
+        address _scriptAgent,
+        address _soundAgent,
+        address _videoAgent
+    ) Ownable(msg.sender) {
+        scriptAgentWallet = _scriptAgent;
+        soundAgentWallet = _soundAgent;
+        videoAgentWallet = _videoAgent;
     }
-    
-    // State variables
-    mapping(uint256 => Invoice) public invoices;
-    mapping(string => bool) public usedTxHashes; // Prevent double spending
-    uint256 public invoiceCounter;
-    
-    address public owner;
-    
-    // Modifiers
-    modifier onlyOwner() {
-        require(msg.sender == owner, "Not owner");
-        _;
-    }
-    
-    constructor() {
-        owner = msg.sender;
-    }
-    
-    /**
-     * @dev Create an invoice for payment
-     * @param recipient Address to receive payment
-     * @param asset Token address (address(0) for native ETH)
-     * @param amount Amount to be paid
-     * @return invoiceId The ID of the created invoice
-     */
-    function createInvoice(
-        address recipient,
-        address asset,
-        uint256 amount
-    ) external returns (uint256) {
-        require(recipient != address(0), "Invalid recipient");
-        require(amount > 0, "Amount must be greater than 0");
-        
-        invoiceCounter++;
-        invoices[invoiceCounter] = Invoice({
-            recipient: recipient,
-            asset: asset,
-            amount: amount,
-            paid: false,
-            timestamp: block.timestamp
+
+    // 5. FUNCTION 1: User pays to start a job
+    function requestVideo(string memory _prompt) public payable {
+        require(msg.value > 0.0000001 ether, "Not enough ETH sent");
+
+        uint256 newRequestId = nextRequestId;
+
+        requests[newRequestId] = VideoRequest({
+            user: msg.sender,
+            prompt: _prompt,
+            isComplete: false,
+            amountPaid: msg.value
         });
-        
-        emit InvoiceCreated(invoiceCounter, recipient, asset, amount);
-        return invoiceCounter;
+
+        nextRequestId++;
+
+        emit VideoRequested(newRequestId, msg.sender, _prompt);
     }
-    
-    /**
-     * @dev Verify a payment transaction
-     * @param txHash Transaction hash of the payment
-     * @param from Sender address
-     * @param to Recipient address
-     * @param token Token address
-     * @param amount Amount paid
-     */
-    function verifyPayment(
-        string memory txHash,
-        address from,
-        address to,
-        address token,
-        uint256 amount
+
+    // 6. FUNCTION 2: Backend pays an agent (on-chain proof)
+    function payAgent(
+        uint256 _requestId,
+        address _agentWallet,
+        uint256 _amount
+    ) public onlyOwner {
+        require(requests[_requestId].user != address(0), "Request not found");
+        require(address(this).balance >= _amount, "Insufficient contract balance");
+
+        (bool success, ) = _agentWallet.call{value: _amount}("");
+        require(success, "Failed to send ETH to agent");
+
+        emit AgentPaid(_requestId, _agentWallet, _amount);
+    }
+
+    // 7. FUNCTION 3: Withdraw profits/funds
+    function withdraw() public onlyOwner {
+        (bool success, ) = owner().call{value: address(this).balance}("");
+        require(success, "Withdrawal failed");
+    }
+
+    // -------- AP2/x402/MCP HELPERS --------
+
+    // Define AP2 fields and generic metadata for a request
+    function defineAP2Flow(
+        uint256 _requestId,
+        string calldata _ap2Nonce,
+        string calldata _receiptURI,
+        string calldata _callbackURI,
+        string calldata _metadataURI
     ) external onlyOwner {
-        require(!usedTxHashes[txHash], "Transaction already verified");
-        require(from != address(0), "Invalid sender");
-        require(to != address(0), "Invalid recipient");
-        require(amount > 0, "Invalid amount");
-        
-        usedTxHashes[txHash] = true;
-        
-        emit PaymentReceived(from, to, token, amount, txHash);
+        require(requests[_requestId].user != address(0), "Request not found");
+        FlowData storage flow = requestFlows[_requestId];
+        flow.ap2Nonce = _ap2Nonce;
+        flow.receiptURI = _receiptURI;
+        flow.callbackURI = _callbackURI;
+        flow.metadataURI = _metadataURI;
+        emit AP2FlowDefined(_requestId, _ap2Nonce, _receiptURI, _callbackURI, _metadataURI);
     }
-    
-    /**
-     * @dev Check if a transaction hash has been used
-     * @param txHash Transaction hash to check
-     * @return bool True if already used
-     */
-    function isTxHashUsed(string memory txHash) external view returns (bool) {
-        return usedTxHashes[txHash];
+
+    // Define an x402 challenge/invoice URI
+    function defineX402Challenge(
+        uint256 _requestId,
+        string calldata _challengeURI
+    ) external onlyOwner {
+        require(requests[_requestId].user != address(0), "Request not found");
+        requestFlows[_requestId].x402ChallengeURI = _challengeURI;
+        emit X402ChallengeDefined(_requestId, _challengeURI);
     }
-    
-    /**
-     * @dev Get invoice details
-     * @param invoiceId ID of the invoice
-     * @return Invoice struct
-     */
-    function getInvoice(uint256 invoiceId) external view returns (Invoice memory) {
-        return invoices[invoiceId];
+
+    // Set MCP context URI (tools/context manifest)
+    function setMCPContext(
+        uint256 _requestId,
+        string calldata _contextURI
+    ) external onlyOwner {
+        require(requests[_requestId].user != address(0), "Request not found");
+        requestFlows[_requestId].mcpContextURI = _contextURI;
+        emit MCPContextSet(_requestId, _contextURI);
+    }
+
+    // Expose chain id for clients to assert Arbitrum networks
+    function getChainId() external view returns (uint256) {
+        return block.chainid;
     }
 }
-

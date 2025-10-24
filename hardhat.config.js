@@ -6,8 +6,16 @@ module.exports = {
 	solidity: "0.8.20",
 	networks: {
 		arbitrum: {
+			// Arbitrum One
 			url: process.env.ARBITRUM_RPC_URL || "",
 			accounts: process.env.DEPLOYER_PRIVATE_KEY ? [process.env.DEPLOYER_PRIVATE_KEY] : [],
+			chainId: 42161,
+		},
+		arbitrumSepolia: {
+			// Arbitrum Sepolia
+			url: process.env.ARBITRUM_SEPOLIA_RPC_URL || "",
+			accounts: process.env.DEPLOYER_PRIVATE_KEY ? [process.env.DEPLOYER_PRIVATE_KEY] : [],
+			chainId: 421614,
 		},
 		hardhat: {
 			chainId: 1337,
