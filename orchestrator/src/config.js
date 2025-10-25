@@ -3,6 +3,7 @@ require("dotenv").config();
 module.exports = {
 	// Contract config
 	contractAddress: process.env.MEDIA_FACTORY_ADDRESS,
+	paymentChannelAddress: process.env.PAYMENT_CHANNEL_ADDRESS,
 	rpcUrl: process.env.ARBITRUM_SEPOLIA_RPC_URL || process.env.ARBITRUM_RPC_URL,
 	privateKey: process.env.ORCHESTRATOR_PRIVATE_KEY,
 
@@ -19,6 +20,9 @@ module.exports = {
 		sound: 30, // 30%
 		video: 40, // 40%
 	},
+
+	// Payment channel config
+	channelTimeout: 7 * 24 * 60 * 60, // 7 days in seconds
 
 	// API config
 	port: process.env.PORT || 3001,

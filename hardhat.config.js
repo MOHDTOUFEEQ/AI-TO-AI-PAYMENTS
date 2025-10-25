@@ -1,23 +1,26 @@
 require("@nomicfoundation/hardhat-toolbox");
 require("dotenv").config();
 
+// Use DEPLOYER_PRIVATE_KEY if set, otherwise fall back to ORCHESTRATOR_PRIVATE_KEY
+const deployerKey = process.env.DEPLOYER_PRIVATE_KEY || process.env.ORCHESTRATOR_PRIVATE_KEY;
+
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
 	solidity: "0.8.20",
 	networks: {
-		arbitrum: {
+		"arbitrum": {
 			// Arbitrum One
 			url: process.env.ARBITRUM_RPC_URL || "",
-			accounts: process.env.DEPLOYER_PRIVATE_KEY ? [process.env.DEPLOYER_PRIVATE_KEY] : [],
+			accounts: deployerKey ? [deployerKey] : [],
 			chainId: 42161,
 		},
-		arbitrumSepolia: {
-			// Arbitrum Sepolia
+		"arbitrum-sepolia": {
+			// Arbitrum Sepolia Testnet
 			url: process.env.ARBITRUM_SEPOLIA_RPC_URL || "",
-			accounts: process.env.DEPLOYER_PRIVATE_KEY ? [process.env.DEPLOYER_PRIVATE_KEY] : [],
+			accounts: deployerKey ? [deployerKey] : [],
 			chainId: 421614,
 		},
-		hardhat: {
+		"hardhat": {
 			chainId: 1337,
 		},
 	},

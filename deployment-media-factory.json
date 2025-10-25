@@ -1,0 +1,12 @@
+{
+  "network": "arbitrum-sepolia",
+  "mediaFactoryAddress": "0x6417C3ca31418E510269787D56B346e59846dC49",
+  "paymentChannelAddress": "0xd1c473F7c7003De0527254dC02431Be7feb625c2",
+  "scriptAgentWallet": "0xb8Cc4aDcd6756F61E4a465B50ecEf26e3e5C8958",
+  "soundAgentWallet": "0x4058352F37fc14D1400d6624F4B11c8916A260ae",
+  "videoAgentWallet": "0x5d1A7E9CDb8f7Bf00d40dD3056363f358067De5b",
+  "deployer": "0x9367ee4ab3bA7ebfa4509ae8Cf3F2E3fe1E41929",
+  "timestamp": "2025-10-25T09:40:00.384Z",
+  "blockNumber": 208273535,
+  "transactionHash": "0x850dd0930970ecf616d27c189a6ea55660f96f8fcc4a93a81e38ba337c90cdb6"
+}

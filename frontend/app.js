@@ -1,8 +1,8 @@
 // Contract address - deployed on Arbitrum Sepolia
-const CONTRACT_ADDRESS = "0x6720c5604b76801F1475333DAf7Bd7E6D7D16c33";
+const CONTRACT_ADDRESS = "0x6417C3ca31418E510269787D56B346e59846dC49";
 
-// Minimal ABI
-const CONTRACT_ABI = ["function requestVideo(string memory _prompt) public payable", "event VideoRequested(uint256 indexed requestId, address indexed user, string prompt)"];
+// Minimal ABI (includes payment channel support)
+const CONTRACT_ABI = ["function requestVideo(string memory _prompt) public payable", "event VideoRequested(uint256 indexed requestId, address indexed user, string prompt)", "event PaymentChannelsOpened(uint256 indexed requestId, bytes32[] channelIds, uint256 totalAmount)"];
 
 let provider, signer, contract;
 
@@ -106,7 +106,12 @@ document.getElementById("requestForm").addEventListener("submit", async (e) => {
 			const parsed = contract.interface.parseLog(event);
 			const requestId = parsed.args.requestId.toString();
 
-			showStatus(`✅ Video request submitted! Request ID: ${requestId}`, "success");
+			// Show payment channel info
+			showStatus(`✅ Video request submitted! Request ID: ${requestId}\n` + `💰 Payment channels will be opened for agents (gas-efficient off-chain payments)\n` + `🎬 Video generation will begin automatically`, "success");
+
+			console.log(`Video request submitted! Request ID: ${requestId}`);
+			console.log("Payment channels will be opened by the orchestrator");
+			console.log("Agents will receive off-chain signed payments (0 gas!)");
 
 			// Reset form
 			document.getElementById("prompt").value = "";

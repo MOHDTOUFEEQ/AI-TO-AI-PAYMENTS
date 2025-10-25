@@ -1,0 +1,8 @@
+{
+  "network": "arbitrum-sepolia",
+  "paymentChannelAddress": "0xd1c473F7c7003De0527254dC02431Be7feb625c2",
+  "deployer": "0x9367ee4ab3bA7ebfa4509ae8Cf3F2E3fe1E41929",
+  "timestamp": "2025-10-25T09:19:34.259Z",
+  "blockNumber": 208268684,
+  "transactionHash": "0x729c7204ad3215971d1b4484e86c785e48a07a4fcf0f5d3fb1aa3eda72965c44"
+}
