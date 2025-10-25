@@ -1,11 +1,67 @@
+import { useState, useEffect } from "react";
 import { Sparkles } from "lucide-react";
 import VideoRequestForm from "./VideoRequestForm";
 import TerminalLogs from "./TerminalLogs";
 import PaymentChannelInfo from "./PaymentChannelInfo";
 import ProcessingStatus from "./ProcessingStatus";
+import VideoPopup from "./VideoPopup";
 import { Button } from "./ui/button";
 
 const Hero = () => {
+	const [videoPopupOpen, setVideoPopupOpen] = useState(false);
+	const [videoUrl, setVideoUrl] = useState<string | null>(null);
+	const [requestId, setRequestId] = useState<string | undefined>(undefined);
+	const [scriptText, setScriptText] = useState<string | undefined>(undefined);
+
+	useEffect(() => {
+		// Listen for video completion events from orchestrator
+		const orchestratorUrl = import.meta.env.VITE_ORCHESTRATOR_URL || "http://localhost:3001";
+		const eventSource = new EventSource(`${orchestratorUrl}/api/logs/stream`);
+
+		eventSource.onmessage = (event) => {
+			try {
+				const log = JSON.parse(event.data);
+				const message = log.message || "";
+
+				// Check if the message contains video completion info
+				if (message.includes("✅ Video Generation Complete!") || message.includes("Video URL:")) {
+					// Extract video URL from the next log message
+					const urlMatch = message.match(/Video URL:\s*(https?:\/\/[^\s]+)/);
+					if (urlMatch) {
+						setVideoUrl(urlMatch[1]);
+					}
+				}
+
+				// Extract request ID if available
+				if (message.includes("Request ID:")) {
+					const idMatch = message.match(/Request ID:\s*(\d+)/);
+					if (idMatch) {
+						setRequestId(idMatch[1]);
+					}
+				}
+
+				// Extract script if available
+				if (message.includes("✅ Script Generated")) {
+					// You can enhance this to actually extract the script text
+					// For now, we'll leave it as a placeholder
+				}
+
+				// Open popup when complete
+				if (message.includes("COMPLETE PAYMENT CHANNEL FLOW FINISHED") || message.includes("FULLY COMPLETED")) {
+					if (videoUrl) {
+						setVideoPopupOpen(true);
+					}
+				}
+			} catch (error) {
+				// Ignore parsing errors
+			}
+		};
+
+		return () => {
+			eventSource.close();
+		};
+	}, [videoUrl]);
+
 	return (
 		<section className="max-w-7xl mx-auto px-4 py-10">
 			<div className="text-center mb-12 h-screen">
@@ -53,6 +109,9 @@ const Hero = () => {
 					<TerminalLogs />
 				</div>
 			</div>
+
+			{/* Video Popup */}
+			<VideoPopup isOpen={videoPopupOpen} onClose={() => setVideoPopupOpen(false)} videoUrl={videoUrl} requestId={requestId} scriptText={scriptText} />
 		</section>
 	);
 };

@@ -5,7 +5,7 @@ const { signPaymentMessage, createPaymentRecord, initPaymentChannel } = require(
 const { mockCloseAllChannels } = require("./mockChannelClosure.js");
 const config = require("../config.js");
 const { generateScript } = require("../../agents/script-agent/scriptAgent.js");
-const { generateSound } = require("../../agents/sound-agent/generateImage.js");
+const { generateImage } = require("../../agents/sound-agent/generateImage.js");
 const { generateVideo } = require("../../agents/video-agent/videoAgent.js");
 
 // Store off-chain payment records
@@ -196,19 +196,19 @@ async function processVideoRequest(requestId, user, prompt) {
 	console.log("   ┌─────────────────────────────────────────────────────────────────────────────┐");
 	console.log("   │  SETTLEMENT 2/3: Image Generation AGENT                                                │");
 	console.log("   └─────────────────────────────────────────────────────────────────────────────┘");
-	console.log("   � Work: Generating image for video...");
+	console.log("   🎨 Work: Generating image for video...");
 	console.log("      • Agent Type: Image Generation Agent");
-	console.log("      • Wallet:", config.agentWallets.image);
+	console.log("      • Wallet:", config.agentWallets.sound);
 	console.log("      • Channel ID:", channelIds[1]);
-	console.log("      • Payment Amount:", ethers.formatEther(imageAmount), "ETH");
+	console.log("      • Payment Amount:", ethers.formatEther(soundAmount), "ETH");
 
-	const image = await generateImage({ prompt, script: scriptText.script,theme: scriptText.theme });
+	const sound = await generateImage({ prompt, script: scriptText.script, theme: scriptText.theme });
 	console.log("   ✅ Image Generation Complete!");
 
 	// Sign off-chain payment for sound agent (0 gas!)
 	console.log("\n   💸 Creating Off-Chain Payment Settlement:");
 	console.log("      • Settlement Type: Off-chain signed message");
-	console.log("      • Amount:", ethers.formatEther(imageAmount), "ETH");
+	console.log("      • Amount:", ethers.formatEther(soundAmount), "ETH");
 	console.log("      • Nonce:", nonce);
 	console.log("      • Gas Cost: 0 (off-chain!)");
 	console.log("      🔐 Generating cryptographic signature...");
@@ -240,10 +240,11 @@ async function processVideoRequest(requestId, user, prompt) {
 	console.log("      • Wallet:", config.agentWallets.video);
 	console.log("      • Channel ID:", channelIds[2]);
 	console.log("      • Payment Amount:", ethers.formatEther(videoAmount), "ETH");
-	
+
 	// video url holds here
-	const video = await generateVideo({  script: scriptText,imageUrl:image ,theme:scriptText.theme});
+	const video = await generateVideo({ script: scriptText.script, imageUrl: sound, theme: scriptText.theme });
 	console.log("   ✅ Video Generation Complete!");
+	console.log("      • Video URL:", video);
 
 	// Sign off-chain payment for video agent (0 gas!)
 	console.log("\n   💸 Creating Off-Chain Payment Settlement:");

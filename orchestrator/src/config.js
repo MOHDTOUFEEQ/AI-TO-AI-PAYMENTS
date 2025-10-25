@@ -36,7 +36,7 @@ module.exports = {
 		},
 		sound: {
 			enabled: true,
-			url: process.env.SOUND_SERVICE_URL || "http://localhost:3000/api/v1/generate-sound",
+			url: process.env.SOUND_SERVICE_URL || "http://localhost:3000/api/v1/generate-image",
 		},
 		video: {
 			enabled: true,
