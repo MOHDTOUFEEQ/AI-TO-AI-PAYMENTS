@@ -63,27 +63,26 @@ flowchart TD
     G -->|"7. On-chain verification and ETH release"| G
 
 ```
-## HOW IT WORKS
+## How It Works
 
-1. USER SUBMITS VIDEO REQUEST
---------------------------------
-→ Calls: requestVideo(prompt, { value: amount })
-→ MediaFactory contract locks ETH and emits VideoRequested event
+### 1. User Submits Video Request
+- Calls: `requestVideo(prompt, { value: amount })`  
+- The `MediaFactory` contract locks ETH and emits a `VideoRequested` event.
 
+---
 
-2. ORCHESTRATOR LISTENS AND COORDINATES
---------------------------------
-→ Defines AP2 / x402 / MCP flows for payment & verification  
-→ Opens 3 payment channels (script, sound, video) in one TX  
-→ Generates outputs sequentially: Script → Sound → Video  
-→ Signs off-chain ECDSA payment messages (0 gas)
+### 2. Orchestrator Listens and Coordinates
+- Defines **AP2 / x402 / MCP** flows for payment and verification.  
+- Opens **three payment channels** (script, sound, video) in one transaction.  
+- Generates outputs sequentially → **Script → Sound → Video**.  
+- Signs **off-chain ECDSA payment messages** (zero gas cost).
 
+---
 
-3. AGENTS CLAIM WHEN READY
---------------------------------
-→ Each agent fetches their payment signature from orchestrator API  
-→ Calls closeChannel() on-chain with signature proof  
-→ Contract verifies signature and releases ETH securely
+### 3. Agents Claim When Ready
+- Each agent retrieves its signed payment from the **Orchestrator API**.  
+- Calls: `closeChannel(signature)` on-chain.  
+- The contract verifies the signature and releases ETH securely.
 
 
 ────────────────────────────────────────────
@@ -94,7 +93,7 @@ Layer               | Technology
 --------------------|-----------------------------------------------
 Smart Contracts     | Solidity, Hardhat, Arbitrum (Sepolia / Mainnet)
 Backend             | Node.js, Express, Ethers.js
-Frontend            | HTML + React.Js + MetaMask integration
+Frontend            | React.js + MetaMask integration + HTML
 Agents              | Independent Node.js microservices
 Protocols           | AP2, x402, MCP
 Network             | Arbitrum Rollup
@@ -102,11 +101,12 @@ Wallets             | MetaMask / Private Keys
 
 ## INSTALLATION & SETUP
 
-## PREREQUISITES
+### PREREQUISITES
     - Node.js v18+
     - MetaMask (connected to Arbitrum Sepolia)
     - Testnet ETH → https://faucet.quicknode.com/arbitrum/sepolia
-## - Private keys for:
+    
+### - Private keys for:
      - Orchestrator
      - Script Agent
      - Sound Agent
@@ -155,4 +155,5 @@ Wallets             | MetaMask / Private Keys
     npm run dev
     
 ## Visit the app in your browser:
-    # http://localhost:5050
+    http://localhost:8081
+
