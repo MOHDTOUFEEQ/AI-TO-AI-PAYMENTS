@@ -77,21 +77,7 @@ const VideoRequestForm = () => {
 	};
 
 	return (
-		<div className="max-w-2xl mx-auto">
-			{/* Info Box */}
-			<div className="glass-card p-6 mb-8 border border-white/10">
-				<div className="space-y-2 text-sm">
-					<div className="flex items-center justify-between">
-						<span className="text-foreground/70">Minimum payment:</span>
-						<span className="font-medium">0.000001 ETH</span>
-					</div>
-					<div className="flex items-center justify-between">
-						<span className="text-foreground/70">Payment split:</span>
-						<span className="font-medium">Script (30%) → Sound (30%) → Video (40%)</span>
-					</div>
-				</div>
-			</div>
-
+		<div className="flex flex-col h-full">
 			{/* Connection Status */}
 			{isConnected && address && (
 				<div className="mb-6 p-4 glass-card border border-green-500/20 bg-green-500/10">
@@ -105,14 +91,13 @@ const VideoRequestForm = () => {
 			)}
 
 			{/* Form */}
-			<form onSubmit={handleSubmit} className="space-y-6">
+			<form onSubmit={handleSubmit} className="flex flex-col gap-6 h-full">
 				<div className="space-y-2">
 					<Label htmlFor="prompt" className="text-base">
 						Video Prompt
 					</Label>
-					<Textarea id="prompt" value={prompt} onChange={(e) => setPrompt(e.target.value)} placeholder="Describe the video you want to create..." rows={4} required className="bg-background/50 border-white/10 focus:border-secondary/50 resize-none" />
+					<Textarea id="prompt" value={prompt} onChange={(e) => setPrompt(e.target.value)} placeholder="Describe the video you want to create..." rows={4} required className="bg-background/50 flex-grow border-white/10 focus:border-secondary/50 resize-none" />
 				</div>
-
 				<div className="space-y-2">
 					<Label htmlFor="amount" className="text-base">
 						Payment Amount (ETH)
@@ -137,6 +122,15 @@ const VideoRequestForm = () => {
 					)}
 				</Button>
 			</form>
+			{/* Info Box */}
+			<div className="glass-card p-6 mt-6 border border-white/10">
+				<div className="space-y-2 text-sm">
+					<div className="flex items-center justify-between">
+						<span className="text-foreground/70">Minimum payment:</span>
+						<span className="font-medium">0.000001 ETH</span>
+					</div>
+				</div>
+			</div>
 		</div>
 	);
 };

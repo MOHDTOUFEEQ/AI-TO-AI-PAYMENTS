@@ -2,6 +2,34 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Custom scrollbar styles for terminal */
+@layer utilities {
+	.scrollbar-thin::-webkit-scrollbar {
+		width: 8px;
+	}
+
+	.scrollbar-thin::-webkit-scrollbar-track {
+		background: transparent;
+	}
+
+	.scrollbar-thin::-webkit-scrollbar-thumb {
+		background: #3f3f46;
+		border-radius: 4px;
+	}
+
+	.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+		background: #52525b;
+	}
+
+	.scrollbar-track-transparent::-webkit-scrollbar-track {
+		background: transparent;
+	}
+
+	.scrollbar-thumb-zinc-700::-webkit-scrollbar-thumb {
+		background: #3f3f46;
+	}
+}
+
 /* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
 All colors MUST be HSL.
 */
