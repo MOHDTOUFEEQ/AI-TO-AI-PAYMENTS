@@ -1,141 +1,161 @@
-# AI-to-AI Payments
+# 🤖 Megatron: Creative Swarm on Chain
 
-Blockchain-based system for coordinating payments between AI agents on Arbitrum.
+> **AI-to-AI Payments on Arbitrum** — Autonomous coordination, verification, and payment between creative AI agents using blockchain payment channels.
 
-## Architecture
+---
+<p align="center">
+  <img src="https://drive.google.com/uc?export=view&id=1fwPuzJY6uVssgNFqWAhc9BlXrwuJzIXN" alt="Megatron: Creative Swarm on Chain Banner" width="800"/>
+</p>
+## 🌌 Overview
 
--   **Smart Contract** (`contracts/PaymentContract.sol`): MediaFactory contract with AP2/x402/MCP flow support
--   **Orchestrator** (`orchestrator/`): Backend event listener and agent coordinator
--   **Frontend** (`frontend/`): Web UI for submitting video requests
--   **Agents** (`agents/`): Individual AI agent services
+**Megatron** enables **AI agents to autonomously transact with each other** using **payment channels**, **off-chain signatures**, and **open agent protocols (AP2, x402, MCP)**.
 
-## Quick Start
+This system powers a *Creative Swarm on Chain* — where AI agents generate and pay for scripts, soundtracks, and videos in a decentralized, verifiable, and gas-efficient way.
 
-### 1. Deploy Contract
+Built for the **Creative Swarm on Chain Hackathon**, Megatron shows the future of **self-governing AI economies**.
 
-```bash
-# Install dependencies
-npm install
+---
 
-# Configure .env (see .env.example)
+## 🧩 Key Features
+
+### 💸 Payment Channels (Core Innovation)
+- 99.5% gas reduction using **off-chain ECDSA signatures**
+- Zero-gas payment approvals
+- On-chain verification before fund release
+- Agents claim funds independently
+
+### 🔗 Protocol Integrations
+- **AP2 (Agent Payment Protocol 2)** → Payment authorization  
+- **x402 (HTTP 402 Payment Required)** → Payment verification  
+- **MCP (Model Context Protocol)** → Agent capability negotiation  
+
+### 🧠 Multi-Agent Collaboration
+| Agent | Role | Output |
+|--------|------|---------|
+| 🧾 Script Agent | Writes story/script | `.txt` |
+| 🎵 Sound Agent | Composes soundtrack | `.mp3` |
+| 🎬 Video Agent | Creates final video | `.mp4` |
+
+Each agent has a wallet and can claim its own on-chain reward.
+
+## Transaction Flow, 🧠 How It Works, 🛠️ Tech Stack & ⚙️ Installation
+## 🏗️ Architecture Overview
+
+The **Megatron AI-to-AI Payment System** leverages blockchain payment channels for efficient, verifiable transactions between autonomous AI agents.  
+Built on **Arbitrum Rollup**, it combines off-chain microtransactions with on-chain settlement for scalability and trust.
+
+```mermaid
+flowchart TD
+    A[User / Frontend] --> B[MediaFactory Contract]
+    B --> C[Orchestrator Backend]
+    C --> D[PaymentChannel Contract]
+    D --> E[AI Generation Process]
+    E --> F[AI Agents Claim Service]
+    F --> G[ETH Payout Complete]
+
+    A -->|"1. Submit video request and ETH payment"| B
+    B -->|"2. Store request and emit event"| C
+    C -->|"3. Open payment channels (single TX for all agents)"| D
+    D -->|"4. Channels funded and ready for agents"| E
+    E -->|"5. Generate script, sound, and video outputs"| F
+    F -->|"6. Agents claim payments with signed proof"| G
+    G -->|"7. On-chain verification and ETH release"| G
+
+```
+## HOW IT WORKS
+
+1. USER SUBMITS VIDEO REQUEST
+--------------------------------
+→ Calls: requestVideo(prompt, { value: amount })
+→ MediaFactory contract locks ETH and emits VideoRequested event
+
+
+2. ORCHESTRATOR LISTENS AND COORDINATES
+--------------------------------
+→ Defines AP2 / x402 / MCP flows for payment & verification  
+→ Opens 3 payment channels (script, sound, video) in one TX  
+→ Generates outputs sequentially: Script → Sound → Video  
+→ Signs off-chain ECDSA payment messages (0 gas)
+
+
+3. AGENTS CLAIM WHEN READY
+--------------------------------
+→ Each agent fetches their payment signature from orchestrator API  
+→ Calls closeChannel() on-chain with signature proof  
+→ Contract verifies signature and releases ETH securely
+
+
+────────────────────────────────────────────
+## TECH STACK
+────────────────────────────────────────────
+
+Layer               | Technology
+--------------------|-----------------------------------------------
+Smart Contracts     | Solidity, Hardhat, Arbitrum (Sepolia / Mainnet)
+Backend             | Node.js, Express, Ethers.js
+Frontend            | HTML + React.Js + MetaMask integration
+Agents              | Independent Node.js microservices
+Protocols           | AP2, x402, MCP
+Network             | Arbitrum Rollup
+Wallets             | MetaMask / Private Keys
+
+
+────────────────────────────────────────────
+## INSTALLATION & SETUP
+────────────────────────────────────────────
+
+PREREQUISITES
+--------------------------------
+- Node.js v18+
+- MetaMask (Arbitrum Sepolia)
+- Testnet ETH → https://faucet.quicknode.com/arbitrum/sepolia
+- Private keys for Orchestrator + 3 Agents
+
+
+QUICK START (5 STEPS)
+--------------------------------
+
+1. CLONE REPOSITORY
+--------------------------------
+git clone https://github.com/<your-org>/megatron.git
+cd megatron
+
+
+2. DEPLOY SMART CONTRACTS
+--------------------------------
+npx hardhat run scripts/deploy-payment-channel.js --network arbitrum-sepolia
+
+
+3. CONFIGURE ENVIRONMENT
+--------------------------------
 cp .env.example .env
 
-# Deploy to Arbitrum Sepolia (testnet)
-hardhat run scripts/deploy.js --network arbitrumSepolia
+# Edit .env
+# ────────────────
+MEDIA_FACTORY_ADDRESS=0x...
+PAYMENT_CHANNEL_ADDRESS=0x...
 
-# Or deploy to Arbitrum One (mainnet)
-hardhat run scripts/deploy.js --network arbitrum
-```
-
-### 2. Setup Orchestrator
-
-```bash
-cd orchestrator
-npm install
-
-# Configure .env
-cd ..
-cp .env orchestrator/.env
-
-# Start orchestrator
-cd orchestrator
-npm start
-```
-
-### 3. Open Frontend
-
-```bash
-# Open frontend/index.html in browser
-# Update CONTRACT_ADDRESS in the HTML file
-```
-
-## Features
-
-### ✅ AP2 Flow Support
-
--   Receipt URIs for job tickets
--   Callback URIs for status updates
--   Metadata URIs for request context
-
-### ✅ x402 Challenge Support
-
--   Challenge/invoice URIs for conditional payments
--   Agent-negotiable pricing
-
-### ✅ MCP Context Support
-
--   Tool manifests for AI agents
--   Dynamic context negotiation
-
-### ✅ On-Chain Payments
-
--   Verifiable agent payments
--   Immutable payment history
--   Owner-controlled agent wallets
-
-## Smart Contract
-
-**MediaFactory** - Deployed on Arbitrum
-
-Functions:
-
--   `requestVideo(prompt)` - Submit a video request (payable)
--   `payAgent(requestId, agentWallet, amount)` - Pay an agent (owner only)
--   `defineAP2Flow(...)` - Set AP2 metadata (owner only)
--   `defineX402Challenge(...)` - Set x402 challenge (owner only)
--   `setMCPContext(...)` - Set MCP context (owner only)
--   `getChainId()` - Get current chain ID
-
-Events:
-
--   `VideoRequested` - Emitted when user submits request
--   `AgentPaid` - Emitted when agent is paid
--   `AP2FlowDefined` - Emitted when AP2 metadata is set
--   `X402ChallengeDefined` - Emitted when x402 challenge is set
--   `MCPContextSet` - Emitted when MCP context is set
-
-## Networks
-
--   **Arbitrum Sepolia**: Chain ID 421614 (Testnet)
--   **Arbitrum One**: Chain ID 42161 (Mainnet)
-
-## Environment Variables
-
-```bash
-# Networks
-ARBITRUM_RPC_URL=https://arb1.arbitrum.io/rpc
 ARBITRUM_SEPOLIA_RPC_URL=https://sepolia-rollup.arbitrum.io/rpc
 
-# Wallets
-DEPLOYER_PRIVATE_KEY=0x...
 ORCHESTRATOR_PRIVATE_KEY=0x...
-
-# Agent Wallets
 SCRIPT_AGENT_WALLET=0x...
 SOUND_AGENT_WALLET=0x...
 VIDEO_AGENT_WALLET=0x...
 
-# Contract
-MEDIA_FACTORY_ADDRESS=0x...
-
-# Orchestrator
-PORT=3001
 BASE_URL=http://localhost:3001
-```
+PORT=3001
 
-## Development
 
-```bash
-# Compile contracts
-npm run compile
+4. START ORCHESTRATOR
+--------------------------------
+cd orchestrator
+npm install
+npm start
 
-# Run tests
-npm test
 
-# Deploy locally
-npm run deploy:local
-```
+5. OPEN FRONTEND
+--------------------------------
+cd ../frontend
+python -m http.server 8000
 
-## License
-
-MIT
+# Visit: http://localhost:8000
