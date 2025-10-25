@@ -1,0 +1,171 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+	:root {
+		/* Futuristic gradient colors - bright sunset theme */
+		--gradient-blue: 220 90% 56%;
+		--gradient-purple: 270 70% 60%;
+		--gradient-pink: 330 80% 65%;
+		--gradient-orange: 25 95% 65%;
+
+		/* Base colors for futuristic theme */
+		--background: 220 90% 56%;
+		--foreground: 0 0% 100%;
+
+		/* Glassmorphic dark cards */
+		--card: 240 10% 10%;
+		--card-foreground: 0 0% 100%;
+		--card-glass: 240 10% 15%;
+
+		--popover: 240 10% 10%;
+		--popover-foreground: 0 0% 100%;
+
+		/* Bright accent colors from gradient */
+		--primary: 270 70% 60%;
+		--primary-foreground: 0 0% 100%;
+
+		--secondary: 330 80% 65%;
+		--secondary-foreground: 0 0% 100%;
+
+		--muted: 240 10% 20%;
+		--muted-foreground: 0 0% 70%;
+
+		--accent: 220 90% 56%;
+		--accent-foreground: 0 0% 100%;
+
+		--destructive: 0 84.2% 60.2%;
+		--destructive-foreground: 0 0% 100%;
+
+		--border: 240 10% 25%;
+		--input: 240 10% 15%;
+		--ring: 270 70% 60%;
+
+		--radius: 1rem;
+
+		/* Glassmorphic effects */
+		--glass-blur: 24px;
+		--glass-opacity: 0.05;
+
+		/* Animations */
+		--transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+		--transition-spring: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+	}
+
+	.dark {
+		/* Keep same theme - this is a bright design */
+		--background: 220 90% 56%;
+		--foreground: 0 0% 100%;
+	}
+}
+
+@layer base {
+	* {
+		@apply border-border;
+	}
+
+	body {
+		@apply text-foreground font-['Orbitron',sans-serif] antialiased;
+		background: linear-gradient(135deg, hsl(var(--gradient-blue)) 0%, hsl(var(--gradient-purple)) 33%, hsl(var(--gradient-pink)) 66%, hsl(var(--gradient-orange)) 100%);
+		background-attachment: fixed;
+		min-height: 100vh;
+	}
+}
+
+@layer components {
+	/* Glassmorphic card styles */
+	.glass-card {
+		@apply bg-card/70 backdrop-blur-[24px] border border-white/20 rounded-2xl;
+		box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37), inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+		transition: var(--transition-smooth);
+	}
+
+	.glass-card:hover {
+		@apply border-white/30 bg-card/80;
+		box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.5), inset 0 1px 0 0 rgba(255, 255, 255, 0.15);
+		transform: translateY(-2px);
+	}
+
+	/* Hero input style */
+	.hero-input {
+		@apply bg-card/60 backdrop-blur-[24px] border border-white/25 rounded-2xl px-6 py-4 w-full text-foreground placeholder:text-muted-foreground;
+		@apply focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-white/40 focus:bg-card/70;
+		box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37), inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+		transition: var(--transition-smooth);
+	}
+
+	/* Smooth animations */
+	.animate-float {
+		animation: float 6s ease-in-out infinite;
+	}
+
+	@keyframes float {
+		0%,
+		100% {
+			transform: translateY(0px);
+		}
+		50% {
+			transform: translateY(-20px);
+		}
+	}
+
+	@keyframes fade-in {
+		from {
+			opacity: 0;
+			transform: translateY(10px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	@keyframes slide-up {
+		from {
+			opacity: 0;
+			transform: translateY(30px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	@keyframes scale-in {
+		from {
+			opacity: 0;
+			transform: scale(0.95);
+		}
+		to {
+			opacity: 1;
+			transform: scale(1);
+		}
+	}
+
+	.animate-glow {
+		animation: glow 3s ease-in-out infinite alternate;
+	}
+
+	@keyframes glow {
+		from {
+			box-shadow: 0 0 20px rgba(255, 255, 255, 0.1), 0 0 40px rgba(168, 85, 247, 0.2);
+		}
+		to {
+			box-shadow: 0 0 30px rgba(255, 255, 255, 0.2), 0 0 60px rgba(168, 85, 247, 0.4);
+		}
+	}
+
+	/* Hover lift effect */
+	.hover-lift {
+		transition: var(--transition-smooth);
+	}
+
+	.hover-lift:hover {
+		transform: translateY(-4px) scale(1.02);
+	}
+}

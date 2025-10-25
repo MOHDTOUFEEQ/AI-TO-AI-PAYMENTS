@@ -2,6 +2,7 @@ const { ethers } = require("ethers");
 const axios = require("axios");
 const { openPaymentChannels, recordOffChainPayment, defineAP2Flow, defineX402Challenge, setMCPContext, getRequest, getSigner } = require("../utils/contract.js");
 const { signPaymentMessage, createPaymentRecord, initPaymentChannel } = require("../utils/paymentChannel.js");
+const { mockCloseAllChannels } = require("./mockChannelClosure.js");
 const config = require("../config.js");
 const { generateScript } = require("../../agents/script-agent/scriptAgent.js");
 const { generateSound } = require("../../agents/sound-agent/soundAgent.js");
@@ -344,6 +345,68 @@ async function processVideoRequest(requestId, user, prompt) {
 	console.log("█  ✓ Channels: OPEN     ✓ Settlements: SIGNED     ✓ Funds: LOCKED         █");
 	console.log("█".repeat(80) + "\n");
 
+	// ========== STEP 6: MOCK CHANNEL CLOSURE (DEMO) ==========
+	console.log("⏳ Preparing to simulate channel closures in 2 seconds...\n");
+	await new Promise((resolve) => setTimeout(resolve, 2000));
+
+	const closureResults = await mockCloseAllChannels({
+		script: { channelId: channelIds[0], amount: ethers.formatEther(scriptAmount), signature: scriptSignature },
+		sound: { channelId: channelIds[1], amount: ethers.formatEther(soundAmount), signature: soundSignature },
+		video: { channelId: channelIds[2], amount: ethers.formatEther(videoAmount), signature: videoSignature },
+	});
+
+	// ========== FINAL SUMMARY ==========
+	console.log("\n\n" + "█".repeat(80));
+	console.log("█".repeat(80));
+	console.log("█                                                                              █");
+	console.log("█                  🎉 COMPLETE PAYMENT CHANNEL FLOW FINISHED 🎉                █");
+	console.log("█                                                                              █");
+	console.log("█".repeat(80));
+	console.log("█".repeat(80) + "\n");
+
+	console.log("╔═══════════════════════════════════════════════════════════════════════════════╗");
+	console.log("║                           EXECUTION SUMMARY                                   ║");
+	console.log("╚═══════════════════════════════════════════════════════════════════════════════╝\n");
+
+	console.log("   ✅ Phase 1: Authorization & Setup");
+	console.log("      • AP2 Authorization - Orchestrator authorized");
+	console.log("      • MCP Context - Agent capabilities defined");
+	console.log("      • x402 Challenge - Payment verification active");
+
+	console.log("\n   ✅ Phase 2: Channel Operations");
+	console.log("      • Channels Opened - 3 channels in 1 transaction");
+	console.log("      • Funds Locked - " + ethers.formatEther(totalAmount) + " ETH secured");
+
+	console.log("\n   ✅ Phase 3: Content Generation & Off-Chain Settlements");
+	console.log("      • Script Generated - Payment signed (0 gas)");
+	console.log("      • Sound Generated - Payment signed (0 gas)");
+	console.log("      • Video Generated - Payment signed (0 gas)");
+
+	console.log("\n   ✅ Phase 4: Channel Closures & Fund Distribution");
+	console.log("      • Script Agent - " + closureResults.script.netGain + " ETH received");
+	console.log("      • Sound Agent - " + closureResults.sound.netGain + " ETH received");
+	console.log("      • Video Agent - " + closureResults.video.netGain + " ETH received");
+
+	console.log("\n   🎯 Total Flow Statistics:");
+	console.log("      ┌────────────────────────────────────────┬──────────────┐");
+	console.log("      │ On-Chain Transactions (Orchestrator)   │ 5            │");
+	console.log("      │ Off-Chain Settlements (Zero Gas)       │ 3            │");
+	console.log("      │ On-Chain Claims (Agents)               │ 3            │");
+	console.log("      │ Total Agents Paid                      │ 3/3 (100%)   │");
+	console.log("      └────────────────────────────────────────┴──────────────┘");
+
+	console.log("\n   💡 Gas Efficiency Achieved:");
+	console.log("      • Traditional Method: 7 transactions upfront");
+	console.log("      • Payment Channel Method: 5 transactions upfront");
+	console.log("      • Savings: 3 instant settlements with 0 gas!");
+
+	console.log("\n" + "█".repeat(80));
+	console.log("█  Request ID: " + requestId.toString().padEnd(64) + "█");
+	console.log("█  Status: FULLY COMPLETED ✓".padEnd(79) + "█");
+	console.log("█  All Channels: CLOSED ✓".padEnd(79) + "█");
+	console.log("█  All Agents: PAID ✓".padEnd(79) + "█");
+	console.log("█".repeat(80) + "\n");
+
 	return {
 		scriptText,
 		sound,
@@ -353,6 +416,7 @@ async function processVideoRequest(requestId, user, prompt) {
 			sound: { channelId: channelIds[1], amount: ethers.formatEther(soundAmount), signature: soundSignature },
 			video: { channelId: channelIds[2], amount: ethers.formatEther(videoAmount), signature: videoSignature },
 		},
+		closureResults,
 	};
 }
 

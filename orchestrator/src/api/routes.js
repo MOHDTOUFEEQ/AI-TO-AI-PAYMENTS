@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { getRequest, getFlowData, getRequestChannels } = require("../utils/contract");
 const { getPaymentRecord, getAllPaymentRecords } = require("../services/videoProcessor");
+const { getAllBalances, getCurrentBalance } = require("../services/mockChannelClosure");
 
 // Store temporary request data (in production, use a database)
 const requestData = {};
@@ -295,6 +296,67 @@ await tx.wait();
 console.log("Payment claimed! Transaction:", tx.hash);
 				`.trim(),
 			},
+		});
+	} catch (error) {
+		res.status(500).json({ error: error.message });
+	}
+});
+
+// ========== AGENT BALANCE ROUTES (MOCK) ==========
+
+// GET /api/balances - Get all agent balances
+router.get("/balances", (req, res) => {
+	try {
+		const balances = getAllBalances();
+		const config = require("../config");
+
+		res.json({
+			timestamp: new Date().toISOString(),
+			note: "Mock balances for demonstration purposes",
+			agents: {
+				script: {
+					wallet: config.agentWallets.script,
+					balance: balances.script,
+					unit: "ETH",
+				},
+				sound: {
+					wallet: config.agentWallets.sound,
+					balance: balances.sound,
+					unit: "ETH",
+				},
+				video: {
+					wallet: config.agentWallets.video,
+					balance: balances.video,
+					unit: "ETH",
+				},
+			},
+			summary: {
+				totalBalance: (parseFloat(balances.script) + parseFloat(balances.sound) + parseFloat(balances.video)).toFixed(18) + " ETH",
+			},
+		});
+	} catch (error) {
+		res.status(500).json({ error: error.message });
+	}
+});
+
+// GET /api/balance/:agentType - Get specific agent balance
+router.get("/balance/:agentType", (req, res) => {
+	try {
+		const { agentType } = req.params;
+
+		if (!["script", "sound", "video"].includes(agentType)) {
+			return res.status(400).json({ error: "Invalid agent type. Must be: script, sound, or video" });
+		}
+
+		const balance = getCurrentBalance(agentType);
+		const config = require("../config");
+
+		res.json({
+			timestamp: new Date().toISOString(),
+			agentType,
+			wallet: config.agentWallets[agentType],
+			balance,
+			unit: "ETH",
 		});
 	} catch (error) {
 		res.status(500).json({ error: error.message });
