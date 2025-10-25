@@ -6,6 +6,7 @@
 <p align="center">
   <img src="https://drive.google.com/uc?export=view&id=1fwPuzJY6uVssgNFqWAhc9BlXrwuJzIXN" alt="Megatron: Creative Swarm on Chain Banner" width="800"/>
 </p>
+
 ## 🌌 Overview
 
 **Megatron** enables **AI agents to autonomously transact with each other** using **payment channels**, **off-chain signatures**, and **open agent protocols (AP2, x402, MCP)**.
@@ -99,63 +100,59 @@ Protocols           | AP2, x402, MCP
 Network             | Arbitrum Rollup
 Wallets             | MetaMask / Private Keys
 
-
-────────────────────────────────────────────
 ## INSTALLATION & SETUP
-────────────────────────────────────────────
 
-PREREQUISITES
+## PREREQUISITES
+    - Node.js v18+
+    - MetaMask (connected to Arbitrum Sepolia)
+    - Testnet ETH → https://faucet.quicknode.com/arbitrum/sepolia
+## - Private keys for:
+     - Orchestrator
+     - Script Agent
+     - Sound Agent
+     - Video Agent
+
+
 --------------------------------
-- Node.js v18+
-- MetaMask (Arbitrum Sepolia)
-- Testnet ETH → https://faucet.quicknode.com/arbitrum/sepolia
-- Private keys for Orchestrator + 3 Agents
-
-
-QUICK START (5 STEPS)
+## QUICK START (5 STEPS)
 --------------------------------
 
-1. CLONE REPOSITORY
---------------------------------
-git clone https://github.com/<your-org>/megatron.git
-cd megatron
+
+## 1. CLONE REPOSITORY
+    git clone https://github.com/MOHDTOUFEEQ/AI-TO-AI-PAYMENTS.git
+    cd AI-TO-AI-PAYMENTS
 
 
-2. DEPLOY SMART CONTRACTS
---------------------------------
-npx hardhat run scripts/deploy-payment-channel.js --network arbitrum-sepolia
+## 2. DEPLOY SMART CONTRACTS
+    npx hardhat run scripts/deploy-payment-channel.js --network arbitrum-sepolia
 
 
-3. CONFIGURE ENVIRONMENT
---------------------------------
-cp .env.example .env
+## 3. CONFIGURE ENVIRONMENT
+    cp .env.example .env
 
-# Edit .env
-# ────────────────
-MEDIA_FACTORY_ADDRESS=0x...
-PAYMENT_CHANNEL_ADDRESS=0x...
+    ## Edit .env as follows:
+        MEDIA_FACTORY_ADDRESS=0x...
+        PAYMENT_CHANNEL_ADDRESS=0x...
+        ARBITRUM_SEPOLIA_RPC_URL=https://sepolia-rollup.arbitrum.io/rpc
+        ORCHESTRATOR_PRIVATE_KEY=0x...
+        SCRIPT_AGENT_WALLET=0x...
+        SOUND_AGENT_WALLET=0x...
+        VIDEO_AGENT_WALLET=0x...
 
-ARBITRUM_SEPOLIA_RPC_URL=https://sepolia-rollup.arbitrum.io/rpc
-
-ORCHESTRATOR_PRIVATE_KEY=0x...
-SCRIPT_AGENT_WALLET=0x...
-SOUND_AGENT_WALLET=0x...
-VIDEO_AGENT_WALLET=0x...
-
-BASE_URL=http://localhost:3001
-PORT=3001
+    ## SERVER
+        BASE_URL=http://localhost:3001
+        PORT=3001
 
 
-4. START ORCHESTRATOR
---------------------------------
-cd orchestrator
-npm install
-npm start
+## 4. START ORCHESTRATOR
+    cd orchestrator
+    npm install
+    npm start
 
 
-5. OPEN FRONTEND
---------------------------------
-cd ../frontend
-python -m http.server 8000
-
-# Visit: http://localhost:8000
+## 5. OPEN FRONTEND
+    cd ../frontend
+    npm run dev
+    
+## Visit the app in your browser:
+    # http://localhost:5050
