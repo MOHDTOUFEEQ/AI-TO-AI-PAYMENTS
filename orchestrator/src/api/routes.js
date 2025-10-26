@@ -302,6 +302,36 @@ console.log("Payment claimed! Transaction:", tx.hash);
 	}
 });
 
+// ========== LOG ENDPOINTS ==========
+
+// GET /api/logs - Get recent logs (for polling when SSE not available)
+router.get("/logs", (req, res) => {
+	try {
+		const logStreamer = require("../utils/logStream");
+		const limit = parseInt(req.query.limit) || 50;
+		const since = req.query.since ? new Date(req.query.since) : null;
+
+		let logs = logStreamer.logBuffer;
+
+		// Filter by timestamp if provided
+		if (since) {
+			logs = logs.filter((log) => new Date(log.timestamp) > since);
+		}
+
+		// Limit results
+		logs = logs.slice(-limit);
+
+		res.json({
+			timestamp: new Date().toISOString(),
+			logs,
+			total: logs.length,
+			hasMore: logStreamer.logBuffer.length > limit,
+		});
+	} catch (error) {
+		res.status(500).json({ error: error.message });
+	}
+});
+
 // ========== AGENT BALANCE ROUTES (MOCK) ==========
 
 // GET /api/balances - Get all agent balances

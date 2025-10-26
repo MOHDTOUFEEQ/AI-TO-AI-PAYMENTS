@@ -26,38 +26,105 @@ const TerminalLogs = () => {
 		}
 	}, [logs, isMinimized]);
 
-	// Connect to SSE stream
+	// Connect to log stream (SSE or polling based on environment)
 	useEffect(() => {
 		const orchestratorUrl = import.meta.env.VITE_ORCHESTRATOR_URL || "http://localhost:3001";
-		const eventSource = new EventSource(`${orchestratorUrl}/api/logs/stream`);
-		eventSourceRef.current = eventSource;
+		const isProduction = import.meta.env.PROD;
+		const isVercel = window.location.hostname.includes("vercel.app") || window.location.hostname.includes("vercel.com");
 
-		eventSource.onopen = () => {
-			setIsConnected(true);
-			console.log("Connected to orchestrator log stream");
-		};
+		// Use polling for production/Vercel deployments, SSE for local development
+		if (isProduction || isVercel) {
+			console.log("Using polling mode for log streaming");
+			setupPolling(orchestratorUrl);
+		} else {
+			console.log("Using SSE mode for log streaming");
+			setupSSE(orchestratorUrl);
+		}
 
-		eventSource.onmessage = (event) => {
-			try {
-				const log: LogEntry = JSON.parse(event.data);
-				if (log.type === "clear") {
-					setLogs([]);
-				} else {
-					setLogs((prev) => [...prev, log]);
+		function setupSSE(url: string) {
+			const eventSource = new EventSource(`${url}/api/logs/stream`);
+			eventSourceRef.current = eventSource;
+
+			eventSource.onopen = () => {
+				setIsConnected(true);
+				console.log("Connected to orchestrator log stream");
+			};
+
+			eventSource.onmessage = (event) => {
+				try {
+					const log: LogEntry = JSON.parse(event.data);
+					if (log.type === "clear") {
+						setLogs([]);
+					} else {
+						setLogs((prev) => [...prev, log]);
+					}
+				} catch (error) {
+					console.error("Failed to parse log:", error);
 				}
-			} catch (error) {
-				console.error("Failed to parse log:", error);
-			}
-		};
+			};
 
-		eventSource.onerror = () => {
-			setIsConnected(false);
-			console.error("Lost connection to orchestrator");
-		};
+			eventSource.onerror = () => {
+				setIsConnected(false);
+				console.error("Lost connection to orchestrator");
+			};
 
-		return () => {
-			eventSource.close();
-		};
+			return () => {
+				eventSource.close();
+			};
+		}
+
+		function setupPolling(url: string) {
+			let lastTimestamp: string | null = null;
+			let pollInterval: NodeJS.Timeout;
+
+			const pollLogs = async () => {
+				try {
+					const params = new URLSearchParams();
+					if (lastTimestamp) {
+						params.append("since", lastTimestamp);
+					}
+					params.append("limit", "100");
+
+					const response = await fetch(`${url}/api/logs?${params}`);
+					if (!response.ok) {
+						throw new Error(`HTTP ${response.status}`);
+					}
+
+					const data = await response.json();
+
+					if (data.logs && data.logs.length > 0) {
+						setLogs((prev) => {
+							// Filter out duplicates and add new logs
+							const existingTimestamps = new Set(prev.map((log) => log.timestamp));
+							const newLogs = data.logs.filter((log: LogEntry) => !existingTimestamps.has(log.timestamp));
+
+							if (newLogs.length > 0) {
+								lastTimestamp = newLogs[newLogs.length - 1].timestamp;
+								return [...prev, ...newLogs];
+							}
+							return prev;
+						});
+					}
+
+					setIsConnected(true);
+				} catch (error) {
+					console.error("Failed to fetch logs:", error);
+					setIsConnected(false);
+				}
+			};
+
+			// Initial fetch
+			pollLogs();
+
+			// Poll every 2 seconds
+			pollInterval = setInterval(pollLogs, 2000);
+
+			return () => {
+				if (pollInterval) {
+					clearInterval(pollInterval);
+				}
+			};
+		}
 	}, []);
 
 	const clearLogs = () => {

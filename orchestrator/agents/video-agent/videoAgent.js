@@ -33,7 +33,7 @@ async function generateVideo({ script, imageUrl, theme }) {
 			{
 				prompt: videoPrompt,
 				imageUrls: [imageUrl],
-				model: "veo3",
+				model: "veo3_fast",
 				generationType: "REFERENCE_2_VIDEO",
 				aspectRatio: "16:9",
 				enableTranslation: true,
